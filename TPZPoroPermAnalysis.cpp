@@ -249,10 +249,10 @@ void TPZPoroPermAnalysis::AppendStrain_Stress(TPZVec<REAL> & x){
     
     int sx_var = 2;
     int sy_var = 3;
-//    int eey_var = 12;
-//    int epy_var = 15;
-    int eey_var = 11;
-    int epy_var = 14;
+    int eey_var = 12;
+    int epy_var = 15;
+//    int eey_var = 11;
+//    int epy_var = 14;
     TPZVec<STATE> sx;
     TPZVec<STATE> sy;
     TPZVec<STATE> eey;

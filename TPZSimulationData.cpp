@@ -24,6 +24,9 @@ TPZSimulationData::TPZSimulationData(){
     /** @brief Store time values to be reported */
     fReportingTimes.Resize(0);
     
+    /** @brief Prestress state */
+    fsigma_0.Resize(0, 0);
+    
     /** @brief ntime steps */
     fn_steps = 0;
     

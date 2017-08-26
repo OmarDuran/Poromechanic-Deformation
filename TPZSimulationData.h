@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "pzvec.h"
+#include "pzfmatrix.h"
 #include "pzstack.h"
 
 class TPZSimulationData {
@@ -28,6 +29,9 @@ protected:
     
     /** @brief Store time values to be reported */
     TPZStack< REAL , 500 > fReportingTimes;
+    
+    /** @brief Prestress state */
+    TPZFMatrix<REAL> fsigma_0;
     
     /** @brief ntime steps */
     int fn_steps;
@@ -62,6 +66,7 @@ public:
         this->fIsCurrentStateQ = copy.fIsCurrentStateQ;
         this->fg = copy.fg;
         this->fReportingTimes = copy.fReportingTimes;
+        this->fsigma_0         = copy.fsigma_0;
         this->fn_steps = copy.fn_steps;
         this->fdt = copy.fdt;
         this->ftime = copy.ftime;
@@ -77,6 +82,7 @@ public:
         this->fIsCurrentStateQ = copy.fIsCurrentStateQ;
         this->fg = copy.fg;
         this->fReportingTimes = copy.fReportingTimes;
+        this->fsigma_0         = copy.fsigma_0;
         this->fn_steps = copy.fn_steps;
         this->fdt = copy.fdt;
         this->ftime = copy.ftime;
@@ -145,6 +151,16 @@ public:
     TPZVec<REAL> & Gravity()
     {
         return fg;
+    }
+    
+    void SetSigma_0(TPZFMatrix<REAL> &sigma_0)
+    {
+        fsigma_0 = sigma_0;
+    }
+    
+    TPZFMatrix<REAL> & Sigma_0()
+    {
+        return fsigma_0;
     }
     
 };

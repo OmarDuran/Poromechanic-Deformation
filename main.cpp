@@ -96,10 +96,17 @@ int main(int argc, char *argv[])
     TPZSimulationData * sim_data = new TPZSimulationData;
     
     REAL dt = 1.0e-6;
-    int n_steps = 10;
-    REAL epsilon_res = 1.0e-3;
-    REAL epsilon_corr = 1.0e-6;
-    int n_corrections = 50;
+    int n_steps = 50;
+    REAL epsilon_res = 1.0e-5;
+    REAL epsilon_corr = 1.0e-8;
+    int n_corrections = 70;
+    
+    TPZFMatrix<REAL> Sigma_0(3,3);
+    Sigma_0.Zero();
+    Sigma_0(0,0) = -1.0e6;
+    Sigma_0(1,1) = -7.5e6;
+    sim_data->SetSigma_0(Sigma_0);
+    
     
     /** @brief Definition gravity field */
     TPZVec<REAL> g(2,0.0);
@@ -287,8 +294,8 @@ TPZCompMesh * CMesh_PorePermeabilityCoupling(TPZGeoMesh * gmesh, TPZVec<TPZCompM
     int dirichlet_y_p    = 2;
     int neumann_x_vn   = 10;
 
-//    REAL s_n = -10.0*MPa;
-    REAL uy = -0.000333333;
+    REAL s_n = -10.0*MPa;
+//    REAL uy = -0.000333333;
     REAL sigam_3 = -1.0*MPa;
     
     TPZFMatrix<STATE> val1(3,3,0.), val2(3,1,0.);
@@ -306,10 +313,10 @@ TPZCompMesh * CMesh_PorePermeabilityCoupling(TPZGeoMesh * gmesh, TPZVec<TPZCompM
     cmesh->InsertMaterialObject(bc_right_mat);
     
     val2(0,0) = 0.0;
-    val2(1,0) = uy;//s_n;
+    val2(1,0) = s_n;
     val2(2,0) = 0.0;
-    TPZMaterial * bc_top_mat = material->CreateBC(material, bc_top, dirichlet_y_p, val1, val2);
-    TPZFunction<REAL> * boundary_data = new TPZDummyFunction<REAL>(u_y);
+    TPZMaterial * bc_top_mat = material->CreateBC(material, bc_top, neumann_y_p, val1, val2);
+    TPZFunction<REAL> * boundary_data = new TPZDummyFunction<REAL>(Sigma);
     bc_top_mat->SetTimedependentBCForcingFunction(boundary_data);
     cmesh->InsertMaterialObject(bc_top_mat);
     
@@ -319,11 +326,6 @@ TPZCompMesh * CMesh_PorePermeabilityCoupling(TPZGeoMesh * gmesh, TPZVec<TPZCompM
     TPZMaterial * bc_left_mat = material->CreateBC(material, bc_left, dirichlet_x_vn, val1, val2);
     cmesh->InsertMaterialObject(bc_left_mat);
     
-//    val2(0,0) = 0.0;
-//    val2(1,0) = 0.0;
-//    val2(2,0) = 0.0;
-//    TPZMaterial * bc_point_mat = material->CreateBC(material, bc_point, dirichlet_x_p, val1, val2);
-//    cmesh->InsertMaterialObject(bc_point_mat);
     
     // Setting up multiphysics functions
     cmesh->SetDimModel(dim);
@@ -482,7 +484,8 @@ void Sigma(const TPZVec< REAL >& pt, REAL time, TPZVec< REAL >& f, TPZFMatrix< R
 {
     
     REAL MPa = 1.0e6;
-    REAL s_n = (1.0*time+0.25)*MPa;
+    REAL scale = 2.0e4;
+    REAL s_n = 18.0*(scale*time)*MPa;
     
     f[0] = 0.0;
     f[1] = -s_n;
@@ -492,12 +495,12 @@ void Sigma(const TPZVec< REAL >& pt, REAL time, TPZVec< REAL >& f, TPZFMatrix< R
 
 void u_y(const TPZVec< REAL >& pt, REAL time, TPZVec< REAL >& f, TPZFMatrix< REAL >& GradP)
 {
-    REAL scale = 1.0e5;
-    REAL uy = -4.0*(0.00028)*time*scale;
+    REAL scale = 1.0e5;//2.0e4;
+    REAL uy = (2.0*(0.00028)*time*scale) + 0.0002;
     
     
     f[0] = 0.0;
-    f[1] = uy;
+    f[1] = -uy;
     f[2] = 0.0;
     return;
 }

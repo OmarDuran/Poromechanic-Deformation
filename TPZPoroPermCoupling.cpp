@@ -246,8 +246,12 @@ void TPZPoroPermCoupling::Contribute(TPZVec<TPZMaterialData> &datavec, REAL weig
     TPZFNMatrix<6,REAL> Grad_vx_j(2,1,0.0),Tj_x;
     TPZFNMatrix<6,REAL> Grad_vy_j(2,1,0.0),Tj_y;
 
+    TPZFMatrix<REAL> & S_0 = fSimulationData->Sigma_0();
+    
     // @omar:: uncoupled behaviour
 //    falpha = 0.0;
+    
+    S -= S_0; // Applying prestress
     
     for (int iu = 0; iu < nphi_u; iu++) {
         
