@@ -95,10 +95,10 @@ int main(int argc, char *argv[])
     
     TPZSimulationData * sim_data = new TPZSimulationData;
     
-    REAL dt = 1.0;
-    int n_steps = 30;
-    REAL epsilon_res = 1.0e-3;
-    REAL epsilon_corr = 1.0e-10;
+    REAL dt = 1.0e-9;
+    int n_steps = 10;
+    REAL epsilon_res = 1.0e-2;
+    REAL epsilon_corr = 1.0e-4;
     int n_corrections = 50;
     
     /** @brief Definition gravity field */
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     REAL Lx = 70.0*mm; // meters
     REAL Ly = 140.0*mm; // meters
     
-    n[0] = 5; // x - direction
+    n[0] = 3; // x - direction
     n[1] = 10; // y - direction
 
     dx_dy[0] = Lx/REAL(n[0]); // x - direction
@@ -145,8 +145,8 @@ int main(int argc, char *argv[])
 #endif
     
     // Create the approximation space
-    int deformation_order = 2;
-    int pore_pressure_order = 1;
+    int deformation_order = 3;
+    int pore_pressure_order = 2;
     
     // Create multiphysisc mesh
     TPZManVector<TPZCompMesh * , 2 > mesh_vector(2);
