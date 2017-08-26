@@ -122,8 +122,9 @@ int main(int argc, char *argv[])
     TPZVec<REAL> dx_dy(2);
     TPZVec<int> n(2);
 
-    REAL Lx = 5.0; // meters
-    REAL Ly = 10.0; // meters
+    REAL mm = 1.0e-3;
+    REAL Lx = 70.0*mm; // meters
+    REAL Ly = 140.0*mm; // meters
     
     n[0] = 5; // x - direction
     n[1] = 10; // y - direction
@@ -144,8 +145,8 @@ int main(int argc, char *argv[])
 #endif
     
     // Create the approximation space
-    int deformation_order = 3;
-    int pore_pressure_order = 2;
+    int deformation_order = 2;
+    int pore_pressure_order = 1;
     
     // Create multiphysisc mesh
     TPZManVector<TPZCompMesh * , 2 > mesh_vector(2);
@@ -164,7 +165,7 @@ int main(int argc, char *argv[])
     // Create the Transient analysis
     
     bool mustOptimizeBandwidth = true;
-    int number_threads = 8;
+    int number_threads = 0;
     TPZPoroPermAnalysis * time_analysis = new TPZPoroPermAnalysis;
     time_analysis->SetCompMesh(cmesh_poro_perm_coupling,mustOptimizeBandwidth);
     time_analysis->SetSimulationData(sim_data);
@@ -172,10 +173,10 @@ int main(int argc, char *argv[])
     time_analysis->AdjustVectors();
     
 //    TPZSkylineNSymStructMatrix skyl(cmesh_poro_perm_coupling);
-//    TPZSkylineStructMatrix struct_mat(cmesh_poro_perm_coupling);
+    TPZSkylineStructMatrix struct_mat(cmesh_poro_perm_coupling);
     
-    TPZParFrontStructMatrix<TPZFrontSym<STATE> > struct_mat(cmesh_poro_perm_coupling);
-    struct_mat.SetDecomposeType(ELDLt);
+//    TPZParFrontStructMatrix<TPZFrontSym<STATE> > struct_mat(cmesh_poro_perm_coupling);
+//    struct_mat.SetDecomposeType(ELDLt);
     
     TPZStepSolver<STATE> step;
     struct_mat.SetNumThreads(number_threads);
@@ -199,6 +200,7 @@ int main(int argc, char *argv[])
     time_analysis->PlotStrainPermeability(file_sk_name);
     time_analysis->PlotStrainPressure(file_spex_name);
     std::cout << " Execution finished" << std::endl;
+    
 	return EXIT_SUCCESS;
 }
 
@@ -249,7 +251,7 @@ TPZCompMesh * CMesh_PorePermeabilityCoupling(TPZGeoMesh * gmesh, TPZVec<TPZCompM
     // Getting mesh dimension
     int dim = 2;
     
-    int kmodel = 3;
+    int kmodel = 0;
     REAL l = 15.3333e8;
     REAL mu = 5.1111e8;
     REAL l_u = 16.3333e8;
@@ -647,13 +649,6 @@ TPZGeoMesh * RockBox(TPZVec<REAL> dx_dy, TPZVec<int> n){
     new TPZGeoElRefPattern < pzgeom::TPZGeoPoint >(elid,Topology,matid,*GeoMesh1);
     GeoMesh1->BuildConnectivity();
     GeoMesh1->SetDimension(0);
-    {
-        //  Print Geometrical Base Mesh
-        std::ofstream argument("GeometicMeshNew1.txt");
-        GeoMesh1->Print(argument);
-        std::ofstream Dummyfile("GeometricMeshNew1.vtk");
-        TPZVTKGeoMesh::PrintGMeshVTK(GeoMesh1,Dummyfile, true);
-    }
     
     
     TPZHierarquicalGrid CreateGridFrom(GeoMesh1);
@@ -665,15 +660,6 @@ TPZGeoMesh * RockBox(TPZVec<REAL> dx_dy, TPZVec<int> n){
     
     // Computing Mesh extruded along the parametric curve Parametricfunction
     TPZGeoMesh * GeoMesh2 = CreateGridFrom.ComputeExtrusion(t, dx, n_elements);
-    
-    {
-        //  Print Geometrical Base Mesh
-        std::ofstream argument("GeometicMeshNew2.txt");
-        GeoMesh2->Print(argument);
-        std::ofstream Dummyfile("GeometricMeshNew2.vtk");
-        TPZVTKGeoMesh::PrintGMeshVTK(GeoMesh2,Dummyfile, true);
-    }
-    
     
     
     TPZHierarquicalGrid CreateGridFrom2(GeoMesh2);
@@ -687,9 +673,9 @@ TPZGeoMesh * RockBox(TPZVec<REAL> dx_dy, TPZVec<int> n){
     TPZGeoMesh * GeoMesh3 = CreateGridFrom2.ComputeExtrusion(t, dy, n_elements);
     {
         //  Print Geometrical Base Mesh
-        std::ofstream argument("GeometicMeshNew3.txt");
+        std::ofstream argument("Geometry.txt");
         GeoMesh3->Print(argument);
-        std::ofstream Dummyfile("GeometricMeshNew3.vtk");
+        std::ofstream Dummyfile("Geometry.vtk");
         TPZVTKGeoMesh::PrintGMeshVTK(GeoMesh3,Dummyfile, true);
     }
     
@@ -697,7 +683,7 @@ TPZGeoMesh * RockBox(TPZVec<REAL> dx_dy, TPZVec<int> n){
     long last_element = GeoMesh3->NElements() - 1;
     long node_id = GeoMesh3->NodeVec()[last_node].Id();
     long element_id = GeoMesh3->Element(last_element)->Id();
-    const std::string name("Geomechanic Reservoir box");
+    const std::string name("Rock sample");
     GeoMesh3->SetName(name);
     GeoMesh3->SetMaxNodeId(node_id);
     GeoMesh3->SetMaxElementId(element_id);

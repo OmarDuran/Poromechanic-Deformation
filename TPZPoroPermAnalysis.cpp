@@ -224,7 +224,7 @@ void TPZPoroPermAnalysis::Run_Evolution(TPZVec<REAL> &x){
         std::cout<< "Permeability Coupling:: Current time (s) = " << time << std::endl;
         this->SimulationData()->SetTime(time);
         this->ExcecuteOneStep();
-//        this->PostProcessStep();
+        this->PostProcessStep();
         this->AppendStrain_Stress(x);
         this->AppendStrain_Pososity(x);
         this->AppendStrain_Permeability(x);
