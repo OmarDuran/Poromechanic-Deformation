@@ -97,8 +97,8 @@ int main(int argc, char *argv[])
     
     REAL dt = 1.0e-6;
     int n_steps = 10;
-    REAL epsilon_res = 1.0e-1;
-    REAL epsilon_corr = 1.0e-2;
+    REAL epsilon_res = 1.0e-3;
+    REAL epsilon_corr = 1.0e-6;
     int n_corrections = 50;
     
     /** @brief Definition gravity field */
@@ -253,8 +253,8 @@ TPZCompMesh * CMesh_PorePermeabilityCoupling(TPZGeoMesh * gmesh, TPZVec<TPZCompM
     int dim = 2;
     
     int kmodel = 0;
-    REAL l = 2.88889e9;//15.3333e8;
-    REAL mu = 2.16667e9;//5.1111e8;
+    REAL l = 1211.5e6;//2.88889e9;//15.3333e8;
+    REAL mu = 1817.25e6;//2.16667e9;//5.1111e8;
     REAL l_u = 16.3333e8;
     REAL alpha = 0.7;
     REAL Se = 1.0e-7;
@@ -262,8 +262,8 @@ TPZCompMesh * CMesh_PorePermeabilityCoupling(TPZGeoMesh * gmesh, TPZVec<TPZCompM
     REAL porosity = 0.25;
     REAL eta = 0.001;
     
-    REAL c = 27.2*MPa;
-    REAL phi_f = 30.0*rad;
+    REAL c = 20.84*MPa;
+    REAL phi_f = 29.3*rad;
 
     TPZCompMesh * cmesh = new TPZCompMesh(gmesh);
     
@@ -493,7 +493,7 @@ void Sigma(const TPZVec< REAL >& pt, REAL time, TPZVec< REAL >& f, TPZFMatrix< R
 void u_y(const TPZVec< REAL >& pt, REAL time, TPZVec< REAL >& f, TPZFMatrix< REAL >& GradP)
 {
     REAL scale = 1.0e5;
-    REAL uy = -(0.00028)*time*scale;
+    REAL uy = -4.0*(0.00028)*time*scale;
     
     
     f[0] = 0.0;

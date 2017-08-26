@@ -249,8 +249,10 @@ void TPZPoroPermAnalysis::AppendStrain_Stress(TPZVec<REAL> & x){
     
     int sx_var = 2;
     int sy_var = 3;
-    int eey_var = 12;
-    int epy_var = 15;
+//    int eey_var = 12;
+//    int epy_var = 15;
+    int eey_var = 11;
+    int epy_var = 14;
     TPZVec<STATE> sx;
     TPZVec<STATE> sy;
     TPZVec<STATE> eey;
@@ -284,7 +286,7 @@ void TPZPoroPermAnalysis::AppendStrain_Stress(TPZVec<REAL> & x){
             duplet.first = eey[0] + epy[0];
             duplet.second = sy[0] - sx[0];
             
-            duplet.first = fabs(duplet.first);
+            duplet.first = -duplet.first;
             duplet.second = fabs(duplet.second);
         }
         

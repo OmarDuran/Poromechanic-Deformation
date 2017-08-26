@@ -1,0 +1,58 @@
+In[178]:= SetDirectory[NotebookDirectory[]];
+In[179]:= ϵshift=0.05;
+ϵ1expdata=Import["Axialstrainstress.txt","Table"];
+ϵ3expdata=Import["Radialstrainstress.txt","Table"];
+ϵvolexpdata=Import["Volumetricstrainstress.txt","Table"];
+
+ϵ1expdata=Drop[ϵ1expdata,-4];
+ϵ3expdata=Drop[ϵ3expdata,-8];
+ϵvolexpdata=Drop[ϵvolexpdata,-8];
+
+ϵ1expdata[[All,1]]-=ϵshift;
+ϵ3expdata[[All,1]]-=ϵshift;
+ϵvolexpdata[[All,1]]-=ϵshift;
+ϵ1expdata[[All,1]]*=1.0/100.0;
+ϵ3expdata[[All,1]]*=1.0/100.0;
+ϵvolexpdata[[All,1]]*=1.0/100.0;
+In[192]:= dataϵAxial={{-0.0000000378715169,0.7501719683282823},{0.0007994389189432,2.8819511980791193},{0.0015989196904532,6.5140922930485434},{0.0023984007817333,10.1462348271823082},{0.0031978819013785,13.7783774889893493},{0.0041662357961189,17.1438090908502581},{0.0055964062632461,19.7676966695381608},{0.0070298926915928,22.3712316615580953},{0.0084654678122313,24.9602318318103258},{0.0099024001440881,27.5384664932003567},{0.0113402337990425,30.1084945966032116}};
+dataϵRadial={{0.0002063651996717,0.7501719683282823},{0.0000064959511602,2.8819511980791193},{-0.0001933742461598,6.5140922930485434},{-0.0003932445193723,10.1462348271823082},{-0.0005931147993191,13.7783774889893493},{-0.0008169535554683,17.1438090908502581},{-0.0011356033126987,19.7676966695381608},{-0.0014912821579746,22.3712316615580953},{-0.0018747886794839,24.9602318318103258},{-0.0022798435076553,27.5384664932003567},{-0.0027019827374299,30.1084945966032116}};
+
+In[194]:= dataϵAxial=Drop[dataϵAxial,-2];
+dataϵRadial=Drop[dataϵRadial,-2];
+dataϵRadial[[All,1]]-=0.0005;
+
+dataϵVolumetric = dataϵRadial;
+dataϵVolumetric[[All,1]]=(dataϵAxial[[All,1]]+dataϵRadial[[All,1]]);
+In[199]:= ListPlot[{ϵ1expdata,ϵ3expdata,ϵvolexpdata,dataϵAxial,dataϵRadial,dataϵVolumetric},PlotStyle->{Blue,Red,Green,Orange},Joined->True,AspectRatio->1, PlotMarkers->Automatic]
+Out[199]= 
+In[200]:= 
+In[201]:= 
+Obtaining Elastic parameters
+In[202]:= model=a x +b;
+fit=FindFit[data,model,{a,b},x]
+λ[Ey_,ν_]=(Ey ν)/((1+ν)(1-2ν));
+μ[Ey_,ν_]=Ey/(2(1+ν));
+During evaluation of In[202]:= FindFit::fitd: First argument data in FindFit is not a list or a rectangular array.
+During evaluation of In[202]:= FindFit::fitd: First argument data in FindFit is not a list or a rectangular array.
+Out[203]= FindFit[data,b+a x,{a,b},x]
+Obtaining Plastic Drucker-Prager 
+G1:: y = 0.7463x + 12.782
+R² = 0.59314
+
+
+G2:: y = 0.5946x + 14.035
+R² = 0.41776
+
+
+
+In[206]:= adjust={α->0.5946,β->14.035};
+eq1=α==Tan[45 + ϕ/2]^2//.adjust;
+eq2=β==2c Tan[45 + ϕ/2]//.adjust;
+sol=Solve[eq1&& eq2,{ϕ,c}]
+
+During evaluation of In[206]:= Solve::ifun: Inverse functions are being used by Solve, so some solutions may not be found; use Reduce for complete solution information.
+Out[209]= {{ϕ->-91.3137,c->-9.1006},{ϕ->-88.6863,c->9.1006}}
+In[210]:= {eq1,eq2}//.sol[[1]]
+{eq1,eq2}//.sol[[2]]
+Out[210]= {True,True}
+Out[211]= {True,True}
