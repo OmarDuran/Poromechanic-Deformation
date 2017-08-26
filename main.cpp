@@ -95,10 +95,10 @@ int main(int argc, char *argv[])
     
     TPZSimulationData * sim_data = new TPZSimulationData;
     
-    REAL dt = 1.0e-9;
+    REAL dt = 1.0e-6;
     int n_steps = 10;
-    REAL epsilon_res = 1.0e-2;
-    REAL epsilon_corr = 1.0e-4;
+    REAL epsilon_res = 1.0e-1;
+    REAL epsilon_corr = 1.0e-2;
     int n_corrections = 50;
     
     /** @brief Definition gravity field */
@@ -123,10 +123,10 @@ int main(int argc, char *argv[])
     TPZVec<int> n(2);
 
     REAL mm = 1.0e-3;
-    REAL Lx = 70.0*mm; // meters
+    REAL Lx = 70.0*mm/2.0; // meters
     REAL Ly = 140.0*mm; // meters
     
-    n[0] = 3; // x - direction
+    n[0] = 6; // x - direction not odd numbers! for geopoint.
     n[1] = 10; // y - direction
 
     dx_dy[0] = Lx/REAL(n[0]); // x - direction
@@ -145,8 +145,8 @@ int main(int argc, char *argv[])
 #endif
     
     // Create the approximation space
-    int deformation_order = 3;
-    int pore_pressure_order = 2;
+    int deformation_order = 2;
+    int pore_pressure_order = 1;
     
     // Create multiphysisc mesh
     TPZManVector<TPZCompMesh * , 2 > mesh_vector(2);
@@ -239,11 +239,12 @@ TPZCompMesh * CMesh_PorePermeabilityCoupling(TPZGeoMesh * gmesh, TPZVec<TPZCompM
     
     // Material identifiers
     int matid =1;
-    int bc_bottom, bc_right, bc_top, bc_left;
+    int bc_bottom, bc_right, bc_top, bc_left, bc_point;
     bc_bottom = -1;
     bc_right = -2;
     bc_top = -3;
     bc_left = -4;
+    bc_point = -5;
     
     REAL MPa = 1.0e6;
     REAL rad = M_PI/180.0;
@@ -252,10 +253,10 @@ TPZCompMesh * CMesh_PorePermeabilityCoupling(TPZGeoMesh * gmesh, TPZVec<TPZCompM
     int dim = 2;
     
     int kmodel = 0;
-    REAL l = 15.3333e8;
-    REAL mu = 5.1111e8;
+    REAL l = 2.88889e9;//15.3333e8;
+    REAL mu = 2.16667e9;//5.1111e8;
     REAL l_u = 16.3333e8;
-    REAL alpha = 0.95;
+    REAL alpha = 0.7;
     REAL Se = 1.0e-7;
     REAL k = 1.0e-14;
     REAL porosity = 0.25;
@@ -282,10 +283,13 @@ TPZCompMesh * CMesh_PorePermeabilityCoupling(TPZGeoMesh * gmesh, TPZVec<TPZCompM
     int dirichlet_x_vn   = 7;
     int dirichlet_y_vn   = 8;
     int neumann_y_p      = 5;
+    int dirichlet_x_p    = 1;
     int dirichlet_y_p    = 2;
+    int neumann_x_vn   = 10;
 
-    REAL s_n = -10.0*MPa;
-//    REAL u_y = -0.000333333;
+//    REAL s_n = -10.0*MPa;
+    REAL uy = -0.000333333;
+    REAL sigam_3 = -1.0*MPa;
     
     TPZFMatrix<STATE> val1(3,3,0.), val2(3,1,0.);
     
@@ -295,17 +299,17 @@ TPZCompMesh * CMesh_PorePermeabilityCoupling(TPZGeoMesh * gmesh, TPZVec<TPZCompM
     TPZMaterial * bc_bottom_mat = material->CreateBC(material, bc_bottom, dirichlet_y_vn, val1, val2);
     cmesh->InsertMaterialObject(bc_bottom_mat);
     
-    val2(0,0) = 0.0;
+    val2(0,0) = sigam_3;
     val2(1,0) = 0.0;
     val2(2,0) = 0.0;
-    TPZMaterial * bc_right_mat = material->CreateBC(material, bc_right, dirichlet_x_vn, val1, val2);
+    TPZMaterial * bc_right_mat = material->CreateBC(material, bc_right, neumann_x_vn, val1, val2);
     cmesh->InsertMaterialObject(bc_right_mat);
     
     val2(0,0) = 0.0;
-    val2(1,0) = s_n;
+    val2(1,0) = uy;//s_n;
     val2(2,0) = 0.0;
-    TPZMaterial * bc_top_mat = material->CreateBC(material, bc_top, neumann_y_p, val1, val2);
-    TPZFunction<REAL> * boundary_data = new TPZDummyFunction<REAL>(Sigma);
+    TPZMaterial * bc_top_mat = material->CreateBC(material, bc_top, dirichlet_y_p, val1, val2);
+    TPZFunction<REAL> * boundary_data = new TPZDummyFunction<REAL>(u_y);
     bc_top_mat->SetTimedependentBCForcingFunction(boundary_data);
     cmesh->InsertMaterialObject(bc_top_mat);
     
@@ -315,16 +319,21 @@ TPZCompMesh * CMesh_PorePermeabilityCoupling(TPZGeoMesh * gmesh, TPZVec<TPZCompM
     TPZMaterial * bc_left_mat = material->CreateBC(material, bc_left, dirichlet_x_vn, val1, val2);
     cmesh->InsertMaterialObject(bc_left_mat);
     
+//    val2(0,0) = 0.0;
+//    val2(1,0) = 0.0;
+//    val2(2,0) = 0.0;
+//    TPZMaterial * bc_point_mat = material->CreateBC(material, bc_point, dirichlet_x_p, val1, val2);
+//    cmesh->InsertMaterialObject(bc_point_mat);
+    
     // Setting up multiphysics functions
     cmesh->SetDimModel(dim);
     cmesh->SetAllCreateFunctionsMultiphysicElemWithMem();
-//    cmesh->SetAllCreateFunctionsMultiphysicElem();
     cmesh->AutoBuild();
     
     cmesh->AdjustBoundaryElements();
     cmesh->CleanUpUnconnectedNodes();
     
-    // Transferindo para a multifisica
+    // Transfer to multiphysic mesh
     TPZBuildMultiphysicsMesh::AddElements(mesh_vector, cmesh);
     TPZBuildMultiphysicsMesh::AddConnects(mesh_vector, cmesh);
     TPZBuildMultiphysicsMesh::TransferFromMeshes(mesh_vector, cmesh);
@@ -483,8 +492,9 @@ void Sigma(const TPZVec< REAL >& pt, REAL time, TPZVec< REAL >& f, TPZFMatrix< R
 
 void u_y(const TPZVec< REAL >& pt, REAL time, TPZVec< REAL >& f, TPZFMatrix< REAL >& GradP)
 {
+    REAL scale = 1.0e5;
+    REAL uy = -(0.00028)*time*scale;
     
-    REAL uy = -(0.1/100.0)*time*0.2;
     
     f[0] = 0.0;
     f[1] = uy;
@@ -640,11 +650,12 @@ TPZGeoMesh * RockBox(TPZVec<REAL> dx_dy, TPZVec<int> n){
     TPZVec<long> Topology(1,0);
     int elid=0;
     int matid=1;
-    int bc_bottom, bc_right, bc_top, bc_left;
+    int bc_bottom, bc_right, bc_top, bc_left, bc_point;
     bc_bottom = -1;
     bc_right = -2;
     bc_top = -3;
     bc_left = -4;
+    bc_point = -5;
     
     new TPZGeoElRefPattern < pzgeom::TPZGeoPoint >(elid,Topology,matid,*GeoMesh1);
     GeoMesh1->BuildConnectivity();
@@ -671,6 +682,7 @@ TPZGeoMesh * RockBox(TPZVec<REAL> dx_dy, TPZVec<int> n){
     
     // Computing Mesh extruded along the parametric curve Parametricfunction2
     TPZGeoMesh * GeoMesh3 = CreateGridFrom2.ComputeExtrusion(t, dy, n_elements);
+
     {
         //  Print Geometrical Base Mesh
         std::ofstream argument("Geometry.txt");

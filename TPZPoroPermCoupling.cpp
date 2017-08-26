@@ -246,6 +246,8 @@ void TPZPoroPermCoupling::Contribute(TPZVec<TPZMaterialData> &datavec, REAL weig
     TPZFNMatrix<6,REAL> Grad_vx_j(2,1,0.0),Tj_x;
     TPZFNMatrix<6,REAL> Grad_vy_j(2,1,0.0),Tj_y;
 
+    // @omar:: uncoupled behaviour
+//    falpha = 0.0;
     
     for (int iu = 0; iu < nphi_u; iu++) {
         
@@ -314,6 +316,9 @@ void TPZPoroPermCoupling::Contribute(TPZVec<TPZMaterialData> &datavec, REAL weig
             
         }
     }
+    
+    // @omar:: uncoupled behaviour
+//    falpha = 0.25;
     
     /** @brief Rudnicki diffusion coefficient */
     /** J. W. Rudnicki. Fluid mass sources and point forces in linear elastic di usive solids. Journal of Mechanics of Materials, 5:383–393, 1986. */
