@@ -161,6 +161,9 @@ public:
         fc = c;
         feta_dp = 6.0*(sin(fphi_f))/(sqrt(3.0)*(3.0-sin(fphi_f)));
         fxi_dp = 6.0*(cos(fphi_f))/(sqrt(3.0)*(3.0-sin(fphi_f)));
+//        // Plane strain conditions
+//        feta_dp = 3.0*(tan(fphi_f))/(sqrt(9.0+12.0*tan(fphi_f)*tan(fphi_f)));
+//        fxi_dp = 3.0/(sqrt(9.0+12.0*tan(fphi_f)*tan(fphi_f)));
     }
     
     /** @brief Set plane problem

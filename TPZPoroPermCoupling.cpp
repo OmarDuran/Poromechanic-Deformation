@@ -1221,7 +1221,7 @@ void TPZPoroPermCoupling::corrector_DP(TPZFMatrix<REAL> Grad_u_n, TPZFMatrix<REA
     // convert to principal stresses
     Principal_Stress(s_trial, S_trial);
     
-    if (Phi_DP(s_trial) <= 0.0) {
+    if (Phi_DP(s_trial) < 0.0) {
         /** Elastic update */
         e_e = e_trial;
         S = s_trial;

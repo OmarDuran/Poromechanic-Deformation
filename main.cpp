@@ -97,14 +97,14 @@ int main(int argc, char *argv[])
     
     REAL dt = 1.0e-6;
     int n_steps = 50;
-    REAL epsilon_res = 1.0e-5;
-    REAL epsilon_corr = 1.0e-8;
-    int n_corrections = 70;
+    REAL epsilon_res = 1.0e-3;
+    REAL epsilon_corr = 1.0e-5;
+    int n_corrections = 75;
     
     TPZFMatrix<REAL> Sigma_0(3,3);
     Sigma_0.Zero();
-    Sigma_0(0,0) = -1.0e6;
-    Sigma_0(1,1) = -7.5e6;
+    Sigma_0(0,0) = -0.0e6;// loaded on the transient boundary condition
+    Sigma_0(1,1) = -6.0e6;
     sim_data->SetSigma_0(Sigma_0);
     
     
@@ -253,8 +253,8 @@ TPZCompMesh * CMesh_PorePermeabilityCoupling(TPZGeoMesh * gmesh, TPZVec<TPZCompM
     bc_left = -4;
     bc_point = -5;
     
-    REAL MPa = 1.0e6;
-    REAL rad = M_PI/180.0;
+    REAL to_MPa = 1.0e6;
+    REAL to_rad = M_PI/180.0;
     
     // Getting mesh dimension
     int dim = 2;
@@ -269,8 +269,8 @@ TPZCompMesh * CMesh_PorePermeabilityCoupling(TPZGeoMesh * gmesh, TPZVec<TPZCompM
     REAL porosity = 0.25;
     REAL eta = 0.001;
     
-    REAL c = 20.84*MPa;
-    REAL phi_f = 29.3*rad;
+    REAL c = 21.0*to_MPa;
+    REAL phi_f = 41.0*to_rad;
 
     TPZCompMesh * cmesh = new TPZCompMesh(gmesh);
     
@@ -294,9 +294,9 @@ TPZCompMesh * CMesh_PorePermeabilityCoupling(TPZGeoMesh * gmesh, TPZVec<TPZCompM
     int dirichlet_y_p    = 2;
     int neumann_x_vn   = 10;
 
-    REAL s_n = -10.0*MPa;
+    REAL s_n = -10.0*to_MPa;
 //    REAL uy = -0.000333333;
-    REAL sigam_3 = -1.0*MPa;
+    REAL sigam_3 = -1.0*to_MPa;
     
     TPZFMatrix<STATE> val1(3,3,0.), val2(3,1,0.);
     
