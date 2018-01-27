@@ -96,9 +96,9 @@ int main(int argc, char *argv[])
     TPZSimulationData * sim_data = new TPZSimulationData;
     
     REAL dt = 1.0e-6;
-    int n_steps = 50;
-    REAL epsilon_res = 1.0e-3;
-    REAL epsilon_corr = 1.0e-5;
+    int n_steps = 100;
+    REAL epsilon_res = 1.0e-5;
+    REAL epsilon_corr = 1.0e-8;
     int n_corrections = 75;
     
     TPZFMatrix<REAL> Sigma_0(3,3);
@@ -264,13 +264,13 @@ TPZCompMesh * CMesh_PorePermeabilityCoupling(TPZGeoMesh * gmesh, TPZVec<TPZCompM
     REAL mu = 1817.25e6;//2.16667e9;//5.1111e8;
     REAL l_u = 16.3333e8;
     REAL alpha = 0.7;
-    REAL Se = 1.0e-7;
-    REAL k = 1.0e-14;
-    REAL porosity = 0.25;
+    REAL Se = 1.0e-9;
+    REAL k = 1.0e-16;
+    REAL porosity = 0.168;
     REAL eta = 0.001;
     
-    REAL c = 21.0*to_MPa;
-    REAL phi_f = 41.0*to_rad;
+    REAL c = 210.0*to_MPa;
+    REAL phi_f = 21.0*to_rad;
 
     TPZCompMesh * cmesh = new TPZCompMesh(gmesh);
     
@@ -302,7 +302,7 @@ TPZCompMesh * CMesh_PorePermeabilityCoupling(TPZGeoMesh * gmesh, TPZVec<TPZCompM
     
     val2(0,0) = 0.0;
     val2(1,0) = 0.0;
-    val2(2,0) = 0.0013801;
+    val2(2,0) = 0.0;
     TPZMaterial * bc_bottom_mat = material->CreateBC(material, bc_bottom, dirichlet_y_vn, val1, val2);
     cmesh->InsertMaterialObject(bc_bottom_mat);
     
@@ -485,7 +485,8 @@ void Sigma(const TPZVec< REAL >& pt, REAL time, TPZVec< REAL >& f, TPZFMatrix< R
     
     REAL MPa = 1.0e6;
     REAL scale = 2.0e4;
-    REAL s_n = 18.0*(scale*time)*MPa;
+//    REAL s_n = 18.0*(scale*time)*MPa;
+    REAL s_n = 25.0*(scale*time)*MPa;
     
     f[0] = 0.0;
     f[1] = -s_n;
